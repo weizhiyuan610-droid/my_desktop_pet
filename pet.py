@@ -22,6 +22,18 @@ except ImportError:
     print("⚠️  macOS API 不可用，窗口吸附功能将被禁用")
 
 
+def get_resource_path(relative_path):
+    """
+    获取资源文件的绝对路径
+    支持 PyInstaller 打包后的路径 (_MEIPASS)
+    """
+    if hasattr(sys, '_MEIPASS'):
+        # PyInstaller 打包后的临时目录
+        return os.path.join(sys._MEIPASS, relative_path)
+    # 开发环境：当前目录
+    return os.path.join(os.path.abspath("."), relative_path)
+
+
 class DesktopPet(QWidget):
     def __init__(self):
         super().__init__()
@@ -134,16 +146,20 @@ class DesktopPet(QWidget):
     def load_cat_image(self):
         """加载猫咪图片并显示到 QLabel"""
 
+        # 获取图片资源路径
+        image_path = get_resource_path("cat.png")
+
         # 检查文件是否存在
-        if not os.path.exists("cat.png"):
+        if not os.path.exists(image_path):
             print("❌ 错误：找不到 cat.png 文件")
+            print(f"   查找路径: {image_path}")
             print(f"   当前工作目录: {os.getcwd()}")
             print("   请确保 cat.png 与 pet.py 在同一目录下")
             print("\n程序无法启动，请准备好 cat.png 图片文件后重试。")
             sys.exit(1)  # 直接退出程序
 
-        # 读取同目录下的 cat.png
-        pixmap = QPixmap("cat.png")
+        # 读取图片
+        pixmap = QPixmap(image_path)
 
         if pixmap.isNull():
             print("❌ 错误：cat.png 加载失败")
