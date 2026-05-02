@@ -8,9 +8,9 @@ import sys
 import os
 import math
 from datetime import datetime, time
-from PyQt6.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
+from PyQt6.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout, QMenu
 from PyQt6.QtCore import Qt, QTimer, QPoint, QPropertyAnimation, QEasingCurve, QRect
-from PyQt6.QtGui import QPixmap, QFont
+from PyQt6.QtGui import QPixmap, QFont, QAction
 
 # macOS API imports for window snapping
 try:
@@ -609,6 +609,23 @@ class DesktopPet(QWidget):
             self.is_dragging = False
             # 延迟一段时间后重新启用吸附（给用户时间放手）
             QTimer.singleShot(500, lambda: setattr(self, 'is_user_dragging', False))
+
+    def contextMenuEvent(self, event):
+        """右键菜单事件"""
+        menu = QMenu(self)
+
+        # 创建"退出"动作
+        quit_action = QAction("退出 (Quit)", self)
+        quit_action.triggered.connect(self.quit_application)
+        menu.addAction(quit_action)
+
+        # 在鼠标位置显示菜单
+        menu.exec(event.globalPos())
+
+    def quit_application(self):
+        """退出应用程序"""
+        print("👋 正在退出桌面宠物...")
+        sys.exit(0)
 
     def closeEvent(self, event):
         """窗口关闭事件 - 防止意外关闭"""
